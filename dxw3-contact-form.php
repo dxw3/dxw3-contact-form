@@ -78,9 +78,7 @@ function formScript() {
         <script>
         (function ( $ ) {
             $( function() {
-                console.log('script');
                 $( document ).on( 'submit', '.dxw3_contact_form', function( e ) {
-                    console.log(e);
                     e.preventDefault();
                     $( '.dxw3_contact_form #dxw3-sent' ).text( 'Wait..' );
                     var form_data = $( this ).serializeArray();
@@ -92,7 +90,7 @@ function formScript() {
                         action: 'dxw3_form'
                         },
                         success: function( data ) {
-                            console.log(data);
+                        //console.log(data);
                         $( '.dxw3_contact_form' ).trigger( 'reset' );
                         $( '.dxw3_contact_form #dxw3-sent' ).text( 'The message was sent successfully.' );
                         }
