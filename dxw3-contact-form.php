@@ -2,7 +2,7 @@
 /* Plugin Name: dxw3 Contact Form
  * Plugin URI:  https://dx-w3.com/en/wordpress-plugins
  * Description: Plug and play simple and fast contact form.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      dxw3
  * Author URI:  https://www.dx-w3.com/
  * License:     GPL-2.0
@@ -11,23 +11,23 @@
 
 if ( !defined( 'ABSPATH' ) ) exit;
 
-// Usage: add form on the page by adding the shortcode: [dxw3-form]
+// Usage: add a form on any page by inserting the shortcode [dxw3-form] on the page.
 
+// Enqueue scripts and styles
+add_action( 'wp_enqueue_scripts', 'dxw3_jquery' );
 function dxw3_jquery() {
     if ( ! wp_script_is( 'jquery', 'enqueued' ) ) wp_enqueue_script( 'jquery' );
 }
-add_action( 'wp_enqueue_scripts', 'dxw3_jquery' );
-
+add_action( 'wp_footer', 'dxw3_plugin_sheets' );
 function dxw3_plugin_sheets() {
     wp_enqueue_style( 'dxw3-form',  plugins_url() . '/dxw3-contact-form/dxw3-form-styles.css' );
 }
-add_action( 'wp_footer', 'dxw3_plugin_sheets' );
 
+// Register shortcode for the form html
 add_action( 'init', 'dxw3_add_shortcode' );
 function dxw3_add_shortcode() {
     add_shortcode( 'dxw3-form' , 'dxw3_form_output' );
 }
-
 function dxw3_form_output() { 
     $html = '<div class="dxw3_contact_form_div">
     <form class="dxw3_contact_form">
@@ -55,14 +55,15 @@ function dxw3_form_output() {
     return $html;
 }
 
+// Receive the form data and send an email
 add_action( 'wp_ajax_dxw3_form', 'dxw3_formF' );
 add_action( 'wp_ajax_nopriv_dxw3_form', 'dxw3_formF' ); 
 function dxw3_formF() {   			  
-    $name = $_POST[ 'formdata' ][ 0 ][ 'value' ];
-    $email = $_POST[ 'formdata' ][ 1 ][ 'value' ];
-    $phone = $_POST[ 'formdata' ][ 2 ][ 'value' ];
-    $call = $_POST[ 'formdata' ][ 3 ][ 'value' ];
-    $message = $_POST[ 'formdata' ][ 4 ][ 'value' ];
+    $name = sanitize_text_field( $_POST[ 'formdata' ][ 0 ][ 'value' ] );
+    $email = sanitize_email( $_POST[ 'formdata' ][ 1 ][ 'value' ] );
+    $phone = filter_var( $_POST[ 'formdata' ][ 2 ][ 'value' ], FILTER_SANITIZE_NUMBER_INT );
+    $call = sanitize_text_field( $_POST[ 'formdata' ][ 3 ][ 'value' ] );
+    $message = sanitize_textarea_field( $_POST[ 'formdata' ][ 4 ][ 'value' ] );
     $formcontent = "\n From: $name \n Email: $email \n Phone: $phone \n Call Back: $call \n Message: $message";
     $recipient = get_option( 'admin_email' );
     $subject = 'Contact Form';
@@ -70,6 +71,7 @@ function dxw3_formF() {
     wp_send_json_success( $formcontent );
 }
 
+// Send the form data on submit
 add_action( 'wp_footer' , 'formScript' );
 function formScript() {
     global $post;
@@ -86,8 +88,8 @@ function formScript() {
                         type: 'POST',
                         url: '<?php echo admin_url( 'admin-ajax.php' ) ?>',
                         data: { 
-                        formdata: form_data,
-                        action: 'dxw3_form'
+                            formdata: form_data,
+                            action: 'dxw3_form'
                         },
                         success: function( data ) {
                         //console.log(data);

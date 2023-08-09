@@ -2,7 +2,7 @@
 
 Plugin URI:        https://dx-w3.com/wordpress-plugins/
 Description:       Plug and play very simple and fast contact form.
-Version:           1.0.0
+Version:           1.0.1
 Author:            dxw3
 Author URI:        https://dx-w3.com
 License:           GPL-2.0+
@@ -23,6 +23,10 @@ Usage: add [dxw3-form] shortcode on the page.
 The plugin works automatically without configuration.
 
 == Changelog ==
+
+= 1.0.1 =
+- sanitized inputs
+- added code comments
 
 = 1.0.0 =
 - initial form
